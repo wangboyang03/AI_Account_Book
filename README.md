@@ -1,0 +1,2 @@
+# AI_Account_Book
+基于Kotlin Multiplatform构建的安卓桌面跨端记账本应用
