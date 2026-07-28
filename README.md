@@ -1,3 +1,6 @@
+# AI_Account_Book
+基于Kotlin Multiplatform构建的安卓桌面跨端记账本应用
+
 This is a Kotlin Multiplatform project targeting Android, Desktop (JVM).
 
 * [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
