@@ -1,0 +1,32 @@
+CREATE TABLE TransactionEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    amount REAL NOT NULL,
+    type TEXT NOT NULL,
+    category TEXT NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    date INTEGER NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+selectAll:
+SELECT * FROM TransactionEntity ORDER BY date DESC;
+
+selectById:
+SELECT * FROM TransactionEntity WHERE id = ?;
+
+insert:
+INSERT INTO TransactionEntity (amount, type, category, note, date, created_at)
+VALUES (?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE TransactionEntity SET amount = ?, type = ?, category = ?, note = ?, date = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM TransactionEntity WHERE id = ?;
+
+selectByType:
+SELECT * FROM TransactionEntity WHERE type = ? ORDER BY date DESC;
+
+selectByDateRange:
+SELECT * FROM TransactionEntity WHERE date >= ? AND date <= ? ORDER BY date DESC;

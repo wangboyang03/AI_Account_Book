@@ -1,6 +1,7 @@
 package cn.itcast.ai_account_book.data
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 expect object UserStore {
   fun init(context: Any?)

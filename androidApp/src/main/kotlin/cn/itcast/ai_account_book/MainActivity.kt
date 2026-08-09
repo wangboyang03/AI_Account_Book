@@ -13,6 +13,7 @@ class MainActivity : ComponentActivity() {
     enableEdgeToEdge()
     super.onCreate(savedInstanceState)
     UserStore.init(this)
+    App.init(this)
 
     setContent {
       App()

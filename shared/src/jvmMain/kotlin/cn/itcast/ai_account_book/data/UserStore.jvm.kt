@@ -1,40 +1,53 @@
 package cn.itcast.ai_account_book.data
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.File
 
 actual object UserStore {
-  private val KEY_NAME = stringPreferencesKey("user_name")
+  private val cacheFlow = MutableStateFlow<String?>(null)
+  private var initialized = false
 
-  private val dataStore: DataStore<Preferences> by lazy {
+  private fun file(): File {
     val dir = File(System.getProperty("user.home"), ".ai_account_book")
     dir.mkdirs()
-    PreferenceDataStoreFactory.create(
-      produceFile = { File(dir, "user_prefs.preferences_pb") }
-    )
+    return File(dir, "user_name.txt")
   }
 
-  actual fun init(context: Any?) { /* JVM侧lazy初始化, 无需context */ }
+  private fun ensureInit() {
+    if (!initialized) {
+      initialized = true
+      val f = file()
+      if (f.exists()) {
+        val saved = f.readText().trim()
+        if (saved.isNotEmpty()) cacheFlow.value = saved
+      }
+    }
+  }
+
+  actual fun init(context: Any?) {
+    ensureInit()
+  }
 
   actual val userNameFlow: Flow<String?>
-    get() = dataStore.data.map { it[KEY_NAME] }
+    get() {
+      ensureInit()
+      return cacheFlow
+    }
 
   actual suspend fun saveUserName(name: String) {
-    dataStore.edit { it[KEY_NAME] = name }
+    file().writeText(name)
+    cacheFlow.value = name
   }
 
   actual suspend fun getUserName(): String? {
-    return dataStore.data.map { it[KEY_NAME] }.first()
+    ensureInit()
+    val f = file()
+    return if (f.exists()) f.readText().trim().ifEmpty { null } else null
   }
 
   actual suspend fun deleteUserName() {
-    dataStore.edit { it.remove(KEY_NAME) }
+    file().delete()
+    cacheFlow.value = null
   }
 }

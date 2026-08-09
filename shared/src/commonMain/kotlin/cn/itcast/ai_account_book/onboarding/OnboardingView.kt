@@ -15,6 +15,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,19 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun OnboardingScreen(
   onFinished: () -> Unit = {},
-  vm: OnboardingViewModel = viewModel(
-    factory = viewModelFactory {
-      addInitializer(OnboardingViewModel::class) { OnboardingViewModel() }
-    }
-  )
+  vm: OnboardingViewModel = remember { OnboardingViewModel() }
 ) {
   val scope = rememberCoroutineScope()
   val pagerState = rememberPagerState { pages.size }

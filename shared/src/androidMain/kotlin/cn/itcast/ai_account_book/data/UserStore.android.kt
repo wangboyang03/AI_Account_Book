@@ -1,38 +1,40 @@
 package cn.itcast.ai_account_book.data
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.io.File
 
 actual object UserStore {
-  private lateinit var dataStore: DataStore<Preferences>
-  private val KEY_NAME = stringPreferencesKey("user_name")
+  private lateinit var appContext: Context
+  private val cacheFlow = MutableStateFlow<String?>(null)
+
+  private fun file(): File = File(appContext.filesDir, "user_name.txt")
 
   actual fun init(context: Any?) {
-    val ctx = context as Context
-    dataStore = PreferenceDataStoreFactory.create(
-      produceFile = { ctx.filesDir.resolve("user_prefs.preferences_pb") }
-    )
+    appContext = context as Context
+    val f = file()
+    if (f.exists()) {
+      val saved = f.readText().trim()
+      if (saved.isNotEmpty()) cacheFlow.value = saved
+    }
   }
 
   actual val userNameFlow: Flow<String?>
-    get() = dataStore.data.map { it[KEY_NAME] }
+    get() = cacheFlow
 
   actual suspend fun saveUserName(name: String) {
-    dataStore.edit { it[KEY_NAME] = name }
+    file().writeText(name)
+    cacheFlow.value = name
   }
 
   actual suspend fun getUserName(): String? {
-    return dataStore.data.map { it[KEY_NAME] }.first()
+    val f = file()
+    return if (f.exists()) f.readText().trim().ifEmpty { null } else null
   }
 
   actual suspend fun deleteUserName() {
-    dataStore.edit { it.remove(KEY_NAME) }
+    file().delete()
+    cacheFlow.value = null
   }
 }
