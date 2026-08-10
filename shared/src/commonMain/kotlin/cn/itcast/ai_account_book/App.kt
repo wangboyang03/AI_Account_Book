@@ -31,8 +31,15 @@ fun App() {
   MaterialTheme {
     var route by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(Unit) {
-      val name = UserStore.getUserName()
-      route = if (name.isNullOrBlank()) "onboarding" else "home"
+      try {
+        val name = UserStore.getUserName()
+        println("App startup: read userName='$name'")
+        route = if (name.isNullOrBlank()) "onboarding" else "home"
+      } catch (e: Exception) {
+        println("App startup: failed to read userName: $e")
+        e.printStackTrace()
+        route = "onboarding"
+      }
     }
     when (route) {
       "onboarding" -> OnboardingScreen(onFinished = { route = "home" })

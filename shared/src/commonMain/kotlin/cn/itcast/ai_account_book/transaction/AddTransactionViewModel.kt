@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cn.itcast.ai_account_book.data.UserStore
 import cn.itcast.ai_account_book.db.Database
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -49,6 +50,7 @@ class AddTransactionViewModel(
     if (amt == null || amt <= 0) return
     val cat = categories[selectedCategory].name
     viewModelScope.launch {
+      val user = UserStore.getUserName() ?: ""
       if (editTransaction != null) {
         Database.db.transactionQueries.update(
           amount = amt, type = type, category = cat,
@@ -59,7 +61,8 @@ class AddTransactionViewModel(
         Database.db.transactionQueries.insert(
           amount = amt, type = type, category = cat,
           note = note, date = dateMs,
-          created_at = Clock.System.now().toEpochMilliseconds()
+          created_at = Clock.System.now().toEpochMilliseconds(),
+          user_name = user
         )
       }
       onDone()

@@ -36,14 +36,29 @@ actual object UserStore {
     }
 
   actual suspend fun saveUserName(name: String) {
-    file().writeText(name)
-    cacheFlow.value = name
+    try {
+      val f = file()
+      f.writeText(name)
+      cacheFlow.value = name
+      println("UserStore: saved userName='$name' to ${f.absolutePath}")
+    } catch (e: Exception) {
+      println("UserStore: failed to save userName: $e")
+      e.printStackTrace()
+    }
   }
 
   actual suspend fun getUserName(): String? {
     ensureInit()
     val f = file()
-    return if (f.exists()) f.readText().trim().ifEmpty { null } else null
+    return try {
+      val value = if (f.exists()) f.readText().trim().ifEmpty { null } else null
+      println("UserStore: getUserName -> '$value' (file=${f.absolutePath}, exists=${f.exists()})")
+      value
+    } catch (e: Exception) {
+      println("UserStore: failed to read userName: $e")
+      e.printStackTrace()
+      null
+    }
   }
 
   actual suspend fun deleteUserName() {

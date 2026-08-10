@@ -302,9 +302,9 @@ private fun LineChart(transactions: List<TransactionItem>, textMeasurer: android
 // ── Settings Page ──
 
 @Composable
-fun SettingsPage() {
-  var name by mutableStateOf("")
-  var saved by mutableStateOf(false)
+fun SettingsPage(onNameSaved: () -> Unit = {}) {
+  var name by remember { mutableStateOf("") }
+  var saved by remember { mutableStateOf(false) }
   val scope = rememberCoroutineScope()
   val primary = Color(0xFF7F3DFF)
 
@@ -324,7 +324,14 @@ fun SettingsPage() {
     )
     Spacer(Modifier.height(12.dp))
     Button(
-      onClick = { scope.launch { UserStore.saveUserName(name.trim()); saved = true } },
+      onClick = {
+        scope.launch {
+          UserStore.saveUserName(name.trim())
+          saved = true
+          onNameSaved()
+        }
+      },
+      enabled = name.isNotBlank(),
       colors = ButtonDefaults.buttonColors(containerColor = primary),
       shape = RoundedCornerShape(10.dp)
     ) { Text("保存", color = Color.White) }
@@ -332,6 +339,9 @@ fun SettingsPage() {
       Spacer(Modifier.height(8.dp))
       Text("已保存", fontSize = 12.sp, color = Color(0xFF38A169))
     }
+    Spacer(Modifier.height(16.dp))
+    Text("提示：每个用户名对应一本独立的账本，切换用户名会切换到对应的账本。",
+      fontSize = 12.sp, color = Color(0xFF9E9EB8))
   }
 }
 

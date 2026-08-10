@@ -83,7 +83,7 @@ fun HomeScreen() {
             Text("日历视图（开发中）", color = Color(0xFFB0B0C8))
           }
         }
-        Routes.SETTINGS -> SettingsPage()
+        Routes.SETTINGS -> SettingsPage(onNameSaved = { vm.loadData() })
       }
     }
   }

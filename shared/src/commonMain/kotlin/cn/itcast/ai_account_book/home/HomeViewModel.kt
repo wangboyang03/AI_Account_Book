@@ -25,14 +25,21 @@ class HomeViewModel : ViewModel() {
     "天生我材必有用，千金散尽还复来",
     "沉舟侧畔千帆过，病树前头万木春"
   )
+  private val poem = poems.random()
 
-  init { loadData() }
+  init {
+    loadData()
+  }
 
   fun loadData() {
     viewModelScope.launch {
       try {
         val name = UserStore.getUserName() ?: ""
-        val entities = Database.db.transactionQueries.selectAll().executeAsList()
+        // One-time migration: claim transactions created before per-user isolation.
+        if (name.isNotBlank()) {
+          Database.db.transactionQueries.assignOrphans(name)
+        }
+        val entities = Database.db.transactionQueries.selectAll(name).executeAsList()
         val items = entities.map {
           TransactionItem(it.id, it.amount, it.type, it.category, it.note, it.date, it.created_at)
         }
@@ -41,7 +48,7 @@ class HomeViewModel : ViewModel() {
         val balance = income - expense
         _uiState.value = HomeUiState(
           userName = name,
-          poem = poems.random(),
+          poem = poem,
           cards = listOf(
             OverviewCard("余额", "¥${"%.2f".format(balance)}"),
             OverviewCard("收入", "¥${"%.2f".format(income)}"),

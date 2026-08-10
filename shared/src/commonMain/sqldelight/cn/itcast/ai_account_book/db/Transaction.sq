@@ -5,18 +5,19 @@ CREATE TABLE TransactionEntity (
     category TEXT NOT NULL,
     note TEXT NOT NULL DEFAULT '',
     date INTEGER NOT NULL,
-    created_at INTEGER NOT NULL
+    created_at INTEGER NOT NULL,
+    user_name TEXT NOT NULL DEFAULT ''
 );
 
 selectAll:
-SELECT * FROM TransactionEntity ORDER BY date DESC;
+SELECT * FROM TransactionEntity WHERE user_name = ? ORDER BY date DESC;
 
 selectById:
 SELECT * FROM TransactionEntity WHERE id = ?;
 
 insert:
-INSERT INTO TransactionEntity (amount, type, category, note, date, created_at)
-VALUES (?, ?, ?, ?, ?, ?);
+INSERT INTO TransactionEntity (amount, type, category, note, date, created_at, user_name)
+VALUES (?, ?, ?, ?, ?, ?, ?);
 
 update:
 UPDATE TransactionEntity SET amount = ?, type = ?, category = ?, note = ?, date = ?
@@ -26,7 +27,10 @@ delete:
 DELETE FROM TransactionEntity WHERE id = ?;
 
 selectByType:
-SELECT * FROM TransactionEntity WHERE type = ? ORDER BY date DESC;
+SELECT * FROM TransactionEntity WHERE type = ? AND user_name = ? ORDER BY date DESC;
 
 selectByDateRange:
-SELECT * FROM TransactionEntity WHERE date >= ? AND date <= ? ORDER BY date DESC;
+SELECT * FROM TransactionEntity WHERE date >= ? AND date <= ? AND user_name = ? ORDER BY date DESC;
+
+assignOrphans:
+UPDATE TransactionEntity SET user_name = ? WHERE user_name = '';
